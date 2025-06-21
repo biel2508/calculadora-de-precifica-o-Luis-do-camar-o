@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <!-- ESSENCIAL para responsividade em celulares -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Precificação</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            min-height: 100vh;
+            height: 100vh;
+            font-family: 'Inter', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0f172a 0%, #2563eb 60%, #22d3ee 100%);
+            position: relative;
+        }
+        #main-content {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Overlay de linhas e formas geométricas */
+        .futuristic-overlay {
+            pointer-events: none;
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: repeating-linear-gradient(
+                120deg,
+                rgba(255,255,255,0.04) 0px,
+                rgba(255,255,255,0.04) 2px,
+                transparent 2px,
+                transparent 40px
+            );
+            mix-blend-mode: lighten;
+            animation: overlayMove 12s linear infinite alternate;
+        }
+        @keyframes overlayMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 80px 40px; }
+        }
+        /* Bolhas decorativas com mais brilho e cor */
+        .bg-bubble {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(32px);
+            opacity: 0.22;
+            z-index: 1;
+            pointer-events: none;
+            animation: float 12s ease-in-out infinite alternate;
+            mix-blend-mode: lighten;
+        }
+        .bg-bubble1 {
+            width: 340px; height: 340px;
+            left: -120px; top: -80px;
+            background: #38bdf8;
+            animation-delay: 0s;
+        }
+        .bg-bubble2 {
+            width: 220px; height: 220px;
+            right: -80px; top: 60px;
+            background: #818cf8;
+            animation-delay: 2s;
+        }
+        .bg-bubble3 {
+            width: 180px; height: 180px;
+            left: 40vw; bottom: -90px;
+            background: #f472b6;
+            animation-delay: 4s;
+        }
+        .bg-bubble4 {
+            width: 160px; height: 160px;
+            right: 10vw; bottom: 10vh;
+            background: #22d3ee;
+            animation-delay: 6s;
+        }
+        .bg-bubble5 {
+            width: 120px; height: 120px;
+            left: 70vw; top: 10vh;
+            background: #fbbf24;
+            animation-delay: 8s;
+        }
+        @keyframes float {
+            0% { transform: translateY(0) scale(1);}
+            100% { transform: translateY(40px) scale(1.07);}
+        }
+        header {
+            width: 100%;
+            max-width: 420px;
+            box-sizing: border-box;
+            padding: 12px 0 0 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+        .titulo-bg-futurista {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 10px;
+            border-radius: 24px;
+            background: linear-gradient(100deg, #0ea5e9 0%, #2563eb 50%, #22d3ee 100%);
+            box-shadow:
+                0 4px 32px 0 #22d3ee55,
+                0 1.5px 6px #2563eb33,
+                0 0 0 6px #fff7ed44 inset;
+            position: relative;
+            margin-bottom: 18px;
+            margin-top: 0;
+            overflow: hidden;
+            width: 100%;
+        }
+        .titulo-bg-futurista::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            background: linear-gradient(120deg, #fff7ed44 30%, #2563eb22 100%);
+            filter: blur(8px);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .titulo-centralizado-futurista {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            font-size: 1.7rem;
+            color: #fff;
+            font-weight: 900;
+            letter-spacing: 1.2px;
+            margin: 0;
+            text-shadow:
+                0 2px 16px #22d3ee,
+                0 1px 0 #fff,
+                0 0 8px #2563eb99;
+            font-family: 'Inter', Arial, sans-serif;
+            background: linear-gradient(90deg, #fff7ed 20%, #38bdf8 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .container {
+            background: linear-gradient(120deg, #fff 70%, #ffe0b2 100%);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(255, 136, 0, 0.13), 0 2px 8px rgba(44,62,80,0.06);
+            padding: 24px 16px 20px 16px;
+            max-width: 420px;
+            width: 96vw;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 18px;
+            transition: box-shadow 0.2s;
+            z-index: 1;
+        }
+        .container-minimalista {
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 4px 32px 0 #2563eb18;
+            padding: 32px 18px 24px 18px;
+            max-width: 340px;
+            width: 96vw;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 18px;
+            position: relative;
+        }
+        .logo-nova {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 28px auto;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 4px 32px 0 #2563eb22, 0 0 0 8px #22d3ee22 inset;
+            overflow: visible;
+            z-index: 2;
+            transition: box-shadow 0.3s, transform 0.25s cubic-bezier(.4,2,.6,1);
+            cursor: pointer;
+        }
+        .logo-nova-bg {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #22d3ee 0%, #2563eb 60%, #0f172a 100%);
+            filter: blur(10px) brightness(1.08);
+            z-index: 0;
+            opacity: 0.7;
+            transition: filter 0.3s, opacity 0.3s;
+        }
+        .logo-nova-img {
+            width: 92px;
+            height: 92px;
+            border-radius: 50%;
+            object-fit: contain;
+            background: #fff;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 24px #22d3ee33, 0 1.5px 6px #2563eb22;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.25s cubic-bezier(.4,2,.6,1), box-shadow 0.25s;
+            display: block;
+        }
+        .logo-nova:hover,
+        .logo-nova:focus {
+            box-shadow: 0 8px 48px 0 #22d3ee55, 0 0 0 14px #2563eb33 inset;
+            transform: scale(1.07);
+        }
+        .logo-nova:hover .logo-nova-bg,
+        .logo-nova:focus .logo-nova-bg {
+            filter: blur(18px) brightness(1.18);
+            opacity: 1;
+        }
+        .logo-nova:hover .logo-nova-img,
+        .logo-nova:focus .logo-nova-img {
+            transform: scale(1.13) rotate(-4deg);
+            box-shadow: 0 8px 40px #22d3ee55, 0 0 0 12px #2563eb22;
+        }
+        @media (max-width: 600px) {
+            .logo-nova {
+                width: 90px;
+                height: 90px;
+            }
+            .logo-nova-img {
+                width: 56px;
+                height: 56px;
+            }
+        }
+        label {
+            font-weight: 700;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.08rem;
+            color: #ff8800;
+            letter-spacing: 0.5px;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+        select, input {
+            width: 100%;
+            padding: 12px 10px 12px 44px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 2px solid #e0e7ff;
+            margin-bottom: 0;
+            background: #f8fafc;
+            transition: border 0.2s, box-shadow 0.2s;
+            font-weight: 700;
+            font-family: 'Inter', Arial, sans-serif;
+            color: #0ea5e9;
+        }
+        select:focus, input:focus {
+            border: 2px solid #2563eb;
+            outline: none;
+            background: #e0f2fe;
+            box-shadow: 0 0 0 2px #2563eb;
+            color: #2563eb;
+        }
+        select option, select option:checked {
+            font-weight: 700;
+            color: #2563eb;
+            background: #e0e7ff;
+        }
+        select option:hover {
+            background: #a5f3fc;
+            color: #2563eb;
+        }
+        .input-group {
+            width: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-bottom: 0;
+        }
+        .input-group-dupla {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+        .input-group span {
+            position: absolute;
+            left: 16px;
+            color: #22c55e;
+            font-size: 1.08rem;
+            font-weight: 800;
+            pointer-events: none;
+            opacity: 1;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+        input[readonly] {
+            background: #fff3e0;
+            color: #ff8800 !important;
+            font-weight: 700;
+        }
+        /* Para garantir que o valor digitado também fique laranja forte */
+        #preco-dinamico {
+            color: #ff8800 !important;
+        }
+        /* UX/UI: botão de ajuda */
+        .ajuda {
+            color: #64748b;
+            font-size: 0.98rem;
+            margin-top: 10px;
+            margin-bottom: -8px;
+            text-align: right;
+            cursor: pointer;
+            transition: color 0.2s;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+        .ajuda:hover {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+        .container:hover {
+            box-shadow: 0 12px 40px rgba(255, 136, 0, 0.18), 0 4px 16px rgba(44,62,80,0.10);
+        }
+        /* Pop-up de ajuda */
+        .pop-ajuda-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(30,41,59,0.25);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInBg 0.3s;
+        }
+        @keyframes fadeInBg {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .pop-ajuda {
+            background: linear-gradient(120deg, #fff 70%, #e0e7ff 100%);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(44,62,80,0.18), 0 2px 8px rgba(44,62,80,0.10);
+            padding: 32px 18px 20px 18px;
+            max-width: 320px;
+            width: 90vw;
+            color: #334155;
+            font-family: 'Inter', Arial, sans-serif;
+            text-align: center;
+            position: relative;
+            animation: popIn 0.3s;
+        }
+        @keyframes popIn {
+            from { transform: scale(0.85); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .pop-ajuda h2 {
+            color: #2563eb;
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        .pop-ajuda p {
+            font-size: 0.98rem;
+            margin-bottom: 14px;
+            color: #475569;
+        }
+        .pop-ajuda button {
+            background: linear-gradient(90deg, #ff8800 60%, #ffb366 100%);
+            color: #fff;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 18px;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #ff880033;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .pop-ajuda button:hover {
+            background: linear-gradient(90deg, #ffb366 60%, #ff8800 100%);
+            transform: scale(1.05);
+        }
+        /* Responsividade */
+        @media (max-width: 600px) {
+            body, html {
+                min-height: 100vh;
+                height: 100vh;
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+            #main-content {
+                width: 100vw;
+                min-height: 100vh;
+                height: auto;
+                padding: 0;
+                justify-content: flex-start;
+            }
+            .container {
+                max-width: 99vw;
+                width: 98vw;
+                min-height: unset;
+                padding: 10vw 2vw 6vw 2vw;
+                border-radius: 12px;
+                box-shadow: 0 2px 16px #2563eb22;
+                gap: 12px;
+            }
+            .logo-nova {
+                width: 70vw;
+                height: 70vw;
+                max-width: 120px;
+                max-height: 120px;
+                min-width: 64px;
+                min-height: 64px;
+                margin-bottom: 16px;
+            }
+            .logo-nova-img {
+                width: 60vw;
+                height: 60vw;
+                max-width: 80px;
+                max-height: 80px;
+                min-width: 40px;
+                min-height: 40px;
+            }
+            .titulo-centralizado-futurista {
+                font-size: 1.1rem;
+                letter-spacing: 0.5px;
+                padding: 0 2vw;
+            }
+            label {
+                font-size: 1rem;
+                margin-bottom: 6px;
+            }
+            select, input, .input-lucro {
+                font-size: 1rem;
+                padding: 10px 8px 10px 38px !important;
+                border-radius: 7px;
+            }
+            .input-group-dupla {
+                flex-direction: column;
+                gap: 4px;
+                align-items: stretch;
+            }
+            .lucro-campo-wrapper {
+                width: 100%;
+                min-width: 0;
+            }
+            .input-lucro {
+                width: 100%;
+                min-width: 0;
+                font-size: 1rem;
+                padding-left: 28px !important;
+            }
+            .porcento-icone-campo {
+                left: 8px;
+                font-size: 1rem;
+            }
+            .ajuda {
+                font-size: 0.95rem;
+                margin-top: 12px;
+            }
+            .pop-ajuda {
+                max-width: 98vw;
+                padding: 18px 4vw 12px 4vw;
+                font-size: 0.98rem;
+            }
+        }
+
+        /* Torna botões e campos mais fáceis de clicar/tocar */
+        input, select, button {
+            touch-action: manipulation;
+            font-size: 1rem;
+        }
+
+        /* Aumenta área de clique dos campos no mobile */
+        @media (pointer: coarse) {
+            input, select, button {
+                min-height: 44px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="main-content">
+        <!-- Overlay futurista -->
+        <div class="futuristic-overlay"></div>
+        <!-- Bolhas decorativas -->
+        <div class="bg-bubble bg-bubble1"></div>
+        <div class="bg-bubble bg-bubble2"></div>
+        <div class="bg-bubble bg-bubble3"></div>
+        <div class="bg-bubble bg-bubble4"></div>
+        <div class="bg-bubble bg-bubble5"></div>
+        <header>
+            <div class="titulo-bg-futurista">
+                <h1 class="titulo-centralizado-futurista" style="margin:0;">Calculadora de Precificação</h1>
+            </div>
+        </header>
+        <div class="container">
+            <div class="logo-nova">
+                <div class="logo-nova-bg"></div>
+                <img src="image.png" alt="Logo da empresa" class="logo-nova-img">
+            </div>
+            <label for="tipo-camarao">Escolha o tipo de camarão</label>
+            <select id="tipo-camarao" name="tipo-camarao" style="font-weight: bold;">
+                <option value="" disabled selected style="font-weight:bold;">Selecione...</option>
+                <option value="in-natura" style="font-weight:bold;">- In natura (com cabeça).</option>
+                <option value="sem-cabeca" style="font-weight:bold;">- Sem cabeça.</option>
+                <option value="tail-on-visceras" style="font-weight:bold;">- Tail-on (com vísceras).</option>
+                <option value="tail-on-sem-visceras" style="font-weight:bold;">- Tail-on (sem vísceras).</option>
+                <option value="descansado-visceras" style="font-weight:bold;">- Descansado (com vísceras).</option>
+                <option value="descansado-sem-visceras" style="font-weight:bold;">- Descansado (sem vísceras).</option>
+            </select>
+            <label for="preco-dinamico" style="margin-bottom:4px;">Informe o preço dinâmico e % de lucro</label>
+            <div class="input-group input-group-dupla">
+                <span>R$</span>
+                <input type="number" id="preco-dinamico" name="preco-dinamico" placeholder="Valor em reais" min="0" step="0.01" style="padding-left: 44px; font-weight: bold;">
+                <span class="porcento-prefixo">%</span>
+                <input type="number" id="lucro" name="lucro" placeholder="lucro" min="0" max="1000" step="0.01" class="input-lucro" style="padding-left: 32px;">
+            </div>
+            <label for="preco-final">Preço final com beneficiamento</label>
+            <div class="input-group">
+                <span>R$</span>
+                <input type="text" id="preco-final" name="preco-final" placeholder="Resultado" readonly style="padding-left: 44px; font-weight: bold;">
+            </div>
+            <div class="ajuda" onclick="abrirAjuda()">Precisa de ajuda?</div>
+        </div>
+    </div>
+    <!-- Pop-up de ajuda (inicialmente oculta) -->
+    <div id="popAjuda" style="display:none;"></div>
+    <script>
+        const precoDinamico = document.getElementById('preco-dinamico');
+        const precoFinal = document.getElementById('preco-final');
+        const tipoCamarao = document.getElementById('tipo-camarao');
+        const lucroInput = document.getElementById('lucro');
+        // Custos fixos por tipo de camarão
+        const custos = {
+            "in-natura": 1.29,
+            "sem-cabeca": 1.88,
+            "tail-on-visceras": 2.48,
+            "tail-on-sem-visceras": 3.67,
+            "descansado-visceras": 3.07,
+            "descansado-sem-visceras": 5.45
+        };
+        function calcularPrecoFinal() {
+            const preco = parseFloat(precoDinamico.value) || 0;
+            const custo = custos[tipoCamarao.value] || 0;
+            const lucroPercent = parseFloat(lucroInput.value) || 0;
+            const valorLucro = preco * (lucroPercent / 100);
+            const total = preco + valorLucro + custo;
+
+            // Fatores de divisão por tipo de camarão
+            const fatores = {
+                "in-natura": 1,                // 100%
+                "sem-cabeca": 0.64,            // 64%
+                "tail-on-visceras": 0.56,      // 56%
+                "tail-on-sem-visceras": 0.54,  // 54%
+                "descansado-visceras": 0.52,   // 52%
+                "descansado-sem-visceras": 0.51 // 51%
+            };
+
+            let resultado = '';
+            if (preco && tipoCamarao.value) {
+                const fator = fatores[tipoCamarao.value] || 1;
+                resultado = (total / fator).toFixed(2);
+            }
+            precoFinal.value = resultado;
+        }
+        precoDinamico.addEventListener('input', calcularPrecoFinal);
+        tipoCamarao.addEventListener('change', calcularPrecoFinal);
+        lucroInput.addEventListener('input', calcularPrecoFinal);
+        /* Funções para a pop-up de ajuda */
+        function abrirAjuda() {
+            const pop = document.getElementById('popAjuda');
+            pop.innerHTML = `
+                <div class="pop-ajuda-bg" onclick="fecharAjuda(event)">
+                    <div class="pop-ajuda" onclick="event.stopPropagation()">
+                        <h2>Dúvidas?</h2>
+                        <p>
+                            <b>1.</b> Selecione o tipo de camarão.<br>
+                            <b>2.</b> Informe o preço dinâmico.<br>
+                            <b>3.</b> O valor final com beneficiamento aparecerá automaticamente.<br><br>
+                            <span style="color:#2563eb;font-weight:600;">Dica:</span> Você pode alterar os campos a qualquer momento!
+                        </p>
+                        <button onclick="fecharAjuda(event)">Entendi!</button>
+                    </div>
+                </div>
+            `;
+            pop.style.display = 'block';
+        }
+        function fecharAjuda(e) {
+            document.getElementById('popAjuda').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
